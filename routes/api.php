@@ -26,28 +26,32 @@ Route::apiResource('specialOffer', SpecialOfferController::class)->only(['index'
 
 
 
+Route::middleware('auth:api')->group(function () {
 
+Route::apiResource('reviews', ReviewController::class)->except(['index', 'show']);
+Route::patch('/bookings/{id}/cancel', [BookingController::class, 'cancel']);
+Route::patch('/bookings/{id}/confirm', [BookingController::class, 'confirm']);
+Route::apiResource('Bookings',BookingController::class)->only(['store', 'show']);
 
-
-
-
+});
 
 Route::middleware('auth:api')->group(function () {
+    Route::middleware('can:isAdmin')->group(function () {
     
 
     
 Route::apiResource('features', FeatureController::class)->except(['index', 'show']);
 Route::apiResource('events', EventController::class)->except(['index', 'show']);
 Route::apiResource('hotel', HotelController::class)->except(['index', 'show']);
-Route::apiResource('reviews', ReviewController::class)->except(['index', 'show']);
+
 Route::apiResource('rooms', RoomController::class)->except(['index', 'show']);
 Route::apiResource('specialOffer', SpecialOfferController::class)->except(['index', 'show']);
 Route::post('/rooms/{room}/features', [RoomFeatureController::class, 'store']);
 Route::delete('/rooms/{room}/features/{feature}', [RoomFeatureController::class, 'destroy']);
-Route::apiResource('Bookings',BookingController::class);
-Route::patch('/bookings/{id}/cancel', [BookingController::class, 'cancel']);
-Route::patch('/bookings/{id}/confirm', [BookingController::class, 'confirm']);
+Route::apiResource('Bookings',BookingController::class)->except(['store', 'show']);
 
+
+});
 });
 
 
