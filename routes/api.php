@@ -1,27 +1,29 @@
 <?php
 
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\HotelController;
-use App\Http\Controllers\RoomController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\FeatureController;
-use App\Http\Controllers\SpecialOfferController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RoomFeatureController;
+use App\Http\Controllers\API\v1\BookingController;
+use App\Http\Controllers\API\v1\HotelController;
+use App\Http\Controllers\API\v1\RoomController;
+use App\Http\Controllers\API\v1\EventController;
+use App\Http\Controllers\API\v1\FeatureController;
+use App\Http\Controllers\API\v1\SpecialOfferController;
+use App\Http\Controllers\API\v1\ProfileController;
+use App\Http\Controllers\API\v1\ReviewController;
+use App\Http\Controllers\API\v1\AuthController;
+use App\Http\Controllers\API\v1\RoomFeatureController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
 
+Route::prefix('v1')->group(function () {
+
 // Routes sans authentification
 Route::apiResource('features', FeatureController::class)->only(['index', 'show']);
 Route::apiResource('events', EventController::class)->only(['index', 'show']);
-Route::apiResource('hotel', HotelController::class)->only(['index', 'show']);
+Route::apiResource('hotels', HotelController::class)->only(['index', 'show']);
 Route::apiResource('rooms', RoomController::class)->only(['index', 'show']);
 Route::apiResource('reviews', ReviewController::class)->only(['index', 'show']);
-Route::apiResource('specialOffer', SpecialOfferController::class)->only(['index', 'show']);
+Route::apiResource('specialOffers', SpecialOfferController::class)->only(['index', 'show']);
 
 
 
@@ -31,7 +33,7 @@ Route::middleware('auth:api')->group(function () {
 Route::apiResource('reviews', ReviewController::class)->except(['index', 'show']);
 Route::patch('/bookings/{id}/cancel', [BookingController::class, 'cancel']);
 Route::patch('/bookings/{id}/confirm', [BookingController::class, 'confirm']);
-Route::apiResource('Bookings',BookingController::class)->only(['store', 'show']);
+Route::apiResource('bookings',BookingController::class)->only(['store', 'show']);
 
 });
 
@@ -42,13 +44,13 @@ Route::middleware('auth:api')->group(function () {
     
 Route::apiResource('features', FeatureController::class)->except(['index', 'show']);
 Route::apiResource('events', EventController::class)->except(['index', 'show']);
-Route::apiResource('hotel', HotelController::class)->except(['index', 'show']);
+Route::apiResource('hotels', HotelController::class)->except(['index', 'show']);
 
 Route::apiResource('rooms', RoomController::class)->except(['index', 'show']);
-Route::apiResource('specialOffer', SpecialOfferController::class)->except(['index', 'show']);
+Route::apiResource('specialOffers', SpecialOfferController::class)->except(['index', 'show']);
 Route::post('/rooms/{room}/features', [RoomFeatureController::class, 'store']);
 Route::delete('/rooms/{room}/features/{feature}', [RoomFeatureController::class, 'destroy']);
-Route::apiResource('Bookings',BookingController::class)->except(['store', 'show']);
+Route::apiResource('bookings',BookingController::class)->except(['store', 'show']);
 
 
 });
@@ -72,3 +74,4 @@ Route::group([
     Route::post('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
 });
 
+});
