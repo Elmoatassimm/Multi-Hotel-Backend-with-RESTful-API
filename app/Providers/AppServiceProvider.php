@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Support\ServiceProvider;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
+use App\Listeners\SendWelcomeEmail;
+use App\Events\UserRegistered;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +33,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('isUser', function (User $user) {
             return $user->role == 'guest';
         });
+
+
+        Event::listen(
+            UserRegistered::class,
+            SendWelcomeEmail::class,
+        );
+
     }
 }

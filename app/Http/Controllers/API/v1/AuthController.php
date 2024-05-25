@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\API\v1;
   
 use App\Http\Controllers\Controller;
+use App\Mail\welcome;
 use App\Models\User;
 use Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-  
-  
+use Illuminate\Support\Facades\Mail;
+use App\Events\UserRegistered;
+
 class AuthController extends Controller
 {
  
@@ -34,6 +36,8 @@ class AuthController extends Controller
         $user->email = request()->email;
         $user->password = bcrypt(request()->password);
         $user->save();
+
+        event(new UserRegistered($user));
     
         return response()->json($user, 201);
     }
