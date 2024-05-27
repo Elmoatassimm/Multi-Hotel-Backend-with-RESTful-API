@@ -34,6 +34,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->role == 'guest';
         });
 
+        Gate::define('isSuperAdmin', function (User $user) {
+            return $user->role == 'SuperAdmin';
+        });
+
+        
+
 
         Event::listen(
             UserRegistered::class,

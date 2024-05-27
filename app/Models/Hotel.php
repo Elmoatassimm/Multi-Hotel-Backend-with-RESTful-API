@@ -64,5 +64,10 @@ class Hotel extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function admins()
+    {
+        return $this->belongsToMany(User::class, 'hotel_admin');
+    }
+
     
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Models\Hotel;
+use App\Models\HotelAdmin;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -25,32 +27,47 @@ class HotelController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreHotelRequest $request)
-    {
-        // Validate the incoming request
-        $validatedData = $request->validated();
+{
+    // Retrieve the authenticated user
+    $user = Auth::user();
 
-        // Handle uploaded photos
-        if ($request->hasFile('photos')) {
-            $photosPaths = [];
+    // Ensure the user is authenticated
+    if (!$user) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
 
-            foreach ($request->file('photos') as $file) {
-                // Store each photo in the 'Hotel_images' directory
-                $path = $file->store('Hotel_images');
+    // Validate the incoming request
+    $validatedData = $request->validated();
 
-                // Store the relative path in an array
-                $photosPaths[] = $path;
-            }
+    // Handle uploaded photos
+    if ($request->hasFile('photos')) {
+        $photosPaths = [];
 
-            // Convert the array of photo paths to a string and store in the 'photos_path' field
-            $validatedData['photos_path'] = implode(',', $photosPaths);
+        foreach ($request->file('photos') as $file) {
+            // Store each photo in the 'Hotel_images' directory
+            $path = $file->store('Hotel_images');
+
+            // Store the relative path in an array  
+            $photosPaths[] = $path;
         }
 
-        // Create a new hotel with the validated data
-        $hotel = Hotel::create($validatedData);
-
-        // Optionally, you can return a success response or redirect
-        return response()->json(['message' => 'Hotel created successfully', 'hotel' => $hotel]);
+        // Convert the array of photo paths to a string and store in the 'photos_path' field
+        $validatedData['photos_path'] = implode(',', $photosPaths);
     }
+
+    // Create a new hotel with the validated data
+    $hotel = Hotel::create($validatedData);
+
+    // Create a new HotelAdmin entry
+    HotelAdmin::create([
+        'hotel_id' => $hotel->id,
+        'user_id' => $user->id,
+    ]);
+
+    // Return a success response with the created hotel details
+    return response()->json(['message' => 'Hotel created successfully', 'hotel_id' => $hotel->id], 201);
+}
+
 
     /**
      * Update the specified resource in storage.
@@ -91,10 +108,14 @@ class HotelController extends Controller
      * Display the specified resource.
      */
     public function show(Hotel $hotel)
-    {
-        // Return the specified hotel as JSON response
-        return response()->json($hotel);
-    }
+{
+    // Fetch the hotel with its related rooms, events, special offers, and reviews
+    $hotelWithRelations = Hotel::with("rooms", "events", "specialOffers", "reviews")->findOrFail($hotel->id);
+    
+    // Return the specified hotel as JSON response
+    return response()->json($hotelWithRelations);
+}
+
 
     /**
      * Remove the specified resource from storage.

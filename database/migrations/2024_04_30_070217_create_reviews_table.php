@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('hotel_id')->constrained('hotels')->onDelete('cascade')->default(1);
+            $table->foreignId('hotel_id')->constrained('hotels')->onDelete('cascade');
             $table->unsignedTinyInteger('rating');
             $table->text('comment')->nullable();
             

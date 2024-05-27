@@ -10,6 +10,7 @@ use App\Http\Controllers\API\v1\ProfileController;
 use App\Http\Controllers\API\v1\ReviewController;
 use App\Http\Controllers\API\v1\AuthController;
 use App\Http\Controllers\API\v1\RoomFeatureController;
+use App\Http\Controllers\API\v1\HotelAdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -51,12 +52,27 @@ Route::apiResource('specialOffers', SpecialOfferController::class)->except(['ind
 Route::post('/rooms/{room}/features', [RoomFeatureController::class, 'store']);
 Route::delete('/rooms/{room}/features/{feature}', [RoomFeatureController::class, 'destroy']);
 Route::apiResource('bookings',BookingController::class)->except(['store', 'show']);
+Route::get('/my-hotel-rooms', [RoomController::class, 'showMyHotelRooms']);
+
+
+       
+        Route::get('hotel-admins/my-hotels', [HotelAdminController::class, 'showMyHotels']);
+        Route::delete('hotel-admins/my-hotels', [HotelAdminController::class, 'destroyMyHotels']);
+        Route::get('my-bookings', [BookingController::class, 'showMyBookings']);
 
 
 });
 });
 
+Route::middleware('auth:api')->group(function () {
+    Route::middleware('can:isSuperAdmin')->group(function () {
 
+        Route::get('hotel-admins', [HotelAdminController::class, 'index']);
+        Route::get('hotel-admins/{hotel_id}/{user_id}', [HotelAdminController::class, 'show']);
+        Route::delete('hotel-admins/{hotel_id}/{user_id}', [HotelAdminController::class, 'destroy']);
+
+    });
+});
 
 
 

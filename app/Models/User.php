@@ -80,5 +80,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+
+    public function hotels()
+    {
+        return $this->belongsToMany(Hotel::class, 'hotel_admin');
+    }
     
 }

@@ -142,4 +142,28 @@ class BookingController extends Controller
 
         return response()->json(['message' => 'Booking deleted successfully'], 200);
     }
+
+
+    public function showMyBookings()
+{
+    $user = Auth::user();
+
+    if (!$user || $user->role != 'admin') {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Get the hotels managed by this admin
+    $hotels = $user->hotels;
+
+    if ($hotels->isEmpty()) {
+        return response()->json(['message' => 'No bookings found for your hotels'], 404);
+    }
+
+    // Get bookings for these hotels
+    $hotelIds = $hotels->pluck('id');
+    $bookings = Booking::whereIn('hotel_id', $hotelIds)->with(['user', 'room', 'offer'])->get();
+
+    return response()->json($bookings);
+}
+
 }
